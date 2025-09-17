@@ -1,0 +1,4 @@
+k8s/
+.github/
+docker-compose.yml
+Makefile
