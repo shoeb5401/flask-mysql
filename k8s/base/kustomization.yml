@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1
+kind: Kustomization
+
+namespace: flask-namespace
+
+resources:
+  - namespace.yml
+  - configmap.yml
+  - secrets.yml
+  - mysql-pvc.yml
