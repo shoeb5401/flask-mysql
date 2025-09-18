@@ -16,7 +16,7 @@ spec:
               service:
                 name: flask-app-service
                 port:
-                  number: 8080
+                  number: 5000
 
     - host: grafana.local
       http:
