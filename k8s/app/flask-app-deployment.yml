@@ -4,16 +4,16 @@ metadata:
   name: flask-app-deployment
   namespace: flask-namespace
   labels:
-    app: flask-app
+    app: flask-app-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: flask-app
+      app: flask-app-deployment
   template:
     metadata:
       labels:
-        app: flask-app
+        app: flask-app-deployment
     spec:
       containers:
         - name: flask-app-container
@@ -42,7 +42,9 @@ spec:
 
           ports:
             - containerPort: 5000
+
           imagePullPolicy: Always
+
           resources:
             requests:
               memory: "128Mi"

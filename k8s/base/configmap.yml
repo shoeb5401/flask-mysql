@@ -4,7 +4,7 @@ metadata:
   name: flask-config
   namespace: flask-namespace
 data:
-  MYSQL_HOST: "mysql"
-  MYSQL_USER: "admin"
-  MYSQL_DB: "devops"
-  MYSQL_DATABASE: "devops"
+  MYSQL_HOST: mysql-service
+  MYSQL_USER: admin
+  MYSQL_DB: devops
+  MYSQL_DATABASE: devops

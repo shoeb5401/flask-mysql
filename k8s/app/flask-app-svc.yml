@@ -5,8 +5,8 @@ metadata:
   namespace: flask-namespace
 spec:
   selector:
-    app: two-tier-app
+    app: flask-app-deployment
   ports:
     - protocol: TCP
-      port: 80
+      port: 8080
       targetPort: 5000

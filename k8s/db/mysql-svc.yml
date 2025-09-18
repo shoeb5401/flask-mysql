@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql
+  name: mysql-service
   namespace: flask-namespace
 spec:
   selector:
-    app: mysql
+    app: mysql-deployment
   ports:
     - port: 3306
       targetPort: 3306

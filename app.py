@@ -1,5 +1,6 @@
+from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 import os
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, Response
 from flask_mysqldb import MySQL
 
 app = Flask(__name__)
@@ -33,6 +34,13 @@ def hello():
     cur.close()
     return render_template('index.html', messages=messages)
 
+
+MESSAGES_COUNTER = Counter('flask_messages_total', 'Total messages submitted')
+
+@app.route('/metrics')
+def metrics():
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
+
 @app.route('/submit', methods=['POST'])
 def submit():
     new_message = request.form.get('new_message')
@@ -40,7 +48,10 @@ def submit():
     cur.execute('INSERT INTO messages (message) VALUES (%s)', [new_message])
     mysql.connection.commit()
     cur.close()
+    MESSAGES_COUNTER.inc() 
     return jsonify({'message': new_message})
+
+
 
 if __name__ == '__main__':
     init_db()

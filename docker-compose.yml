@@ -25,8 +25,9 @@ services:
       start_period: 60s
 
   flask-app:
-    build:
-      context: .
+    image: shoeb5401/flask-mysql:v1
+    # build:
+    #   context: .
     container_name: flask-app
     restart: always
     ports:

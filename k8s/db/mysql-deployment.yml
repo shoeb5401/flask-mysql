@@ -4,19 +4,19 @@ metadata:
   name: mysql-deployment
   namespace: flask-namespace
   labels:
-    app: mysql
+    app: mysql-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mysql
+      app: mysql-deployment
   template:
     metadata:
       labels:
-        app: mysql
+        app: mysql-deployment
     spec:
       containers:
-        - name: mysql
+        - name: mysql-container
           image: mysql:5.7
           env:
             - name: MYSQL_DATABASE
@@ -53,4 +53,5 @@ spec:
               mountPath: /var/lib/mysql
       volumes:
         - name: mysqldata
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: mysql-pvc
