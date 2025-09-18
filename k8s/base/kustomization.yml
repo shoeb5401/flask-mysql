@@ -8,4 +8,6 @@ resources:
   - configmap.yml
   - mysql-pv.yml
   - mysql-pvc.yml
+  - kube-state.yml
+  - node-export.yml
   - ingress.yml
