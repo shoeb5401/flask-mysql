@@ -6,7 +6,6 @@ namespace: flask-namespace
 resources:
   - namespace.yml
   - configmap.yml
-  - secrets.yml
   - mysql-pv.yml
   - mysql-pvc.yml
   - ingress.yml

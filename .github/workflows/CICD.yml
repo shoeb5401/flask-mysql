@@ -1,0 +1,80 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Select environment to deploy"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - development
+          - production
+
+jobs:
+  deploy:
+    name: Build, Push Docker & Deploy to K8s
+    runs-on: self-hosted
+    environment: production
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Docker Hub Login
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker Image
+        run: |
+          VERSION=v${{ github.run_number }}
+          IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/flask-mysql:$VERSION
+          docker build -t $IMAGE_NAME .
+          echo "IMAGE=$IMAGE_NAME" >> $GITHUB_ENV
+
+      - name: Push Docker Image
+        run: |
+          docker push $IMAGE
+
+      - name: Configure Kubeconfig
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+
+      - name: Create Kubernetes Namespace
+        run: |
+          kubectl create namespace flask-namespace --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Create Kubernetes Secret
+        run: |
+          kubectl create secret generic flask-secret \
+              --namespace=flask-namespace \
+              --from-literal=MYSQL_USER=${{ secrets.MYSQL_USER }} \
+              --from-literal=MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} \
+              --from-literal=MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }} \
+              --from-literal=GF_SECURITY_ADMIN_USER=${{ secrets.GF_ADMIN_USER }} \
+              --from-literal=GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GF_ADMIN_PASSWORD }} \
+              --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy to Kubernetes
+        run: |
+          # Replace image in deployment manifest dynamically
+          sed -i "s|image: .*|image: $IMAGE|g" k8s/app/flask-app-deployment.yml
+
+          # Apply manifests
+          kubectl apply -k k8s/
+
+          # Wait for deployment to complete
+          kubectl rollout status deployment/flask-app-deployment -n flask-namespace
